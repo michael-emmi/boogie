@@ -39,7 +39,7 @@ const unique mynodes: Field [ref]bool;
 const unique data: Field T;
 const unique next: Field ref;
 
-function ValidQueue(HeapType, ref) returns (bool);
+function {:id "ValidQueue"} {:checksum "ValidQueue"} ValidQueue(HeapType, ref) returns (bool);
 axiom (forall h: HeapType, q: ref ::
   { ValidQueue(h, q) }
   q != null && h[q,alloc] ==>
@@ -76,7 +76,7 @@ axiom (forall h0: HeapType, h1: HeapType, n: ref ::
   ==>
   ValidQueue(h0,n) == ValidQueue(h1,n));
 
-function ValidNode(HeapType, ref) returns (bool);
+function {:id "ValidNode"} {:checksum "ValidNode"} ValidNode(HeapType, ref) returns (bool);
 axiom (forall h: HeapType, n: ref ::
   { ValidNode(h, n) }
   n != null && h[n,alloc] ==>
@@ -106,7 +106,7 @@ axiom (forall h0: HeapType, h1: HeapType, n: ref ::
 
 // ---------------------------------------------------------------
 
-procedure MakeQueue() returns (q: ref)
+procedure {:id "MakeQueue"} {:checksum "MakeQueue"} MakeQueue() returns (q: ref)
   requires ValidFootprints(H);
   modifies H;
   ensures ValidFootprints(H);
@@ -129,7 +129,7 @@ procedure MakeQueue() returns (q: ref)
   H[q,abstractValue] := H[n,abstractValue];
 }
 
-procedure IsEmpty(q: ref) returns (isEmpty: bool)
+procedure {:id "IsEmpty"} {:checksum "IsEmpty"} IsEmpty(q: ref) returns (isEmpty: bool)
   requires ValidFootprints(H);
   requires q != null && H[q,alloc] && ValidQueue(H, q);
   ensures isEmpty <==> Length(H[q,abstractValue]) == 0;
@@ -137,7 +137,7 @@ procedure IsEmpty(q: ref) returns (isEmpty: bool)
   isEmpty := H[q,head] == H[q,tail];
 }
 
-procedure Enqueue(q: ref, t: T)
+procedure {:id "Enqueue"} {:checksum "Enqueue"} Enqueue(q: ref, t: T)
   requires ValidFootprints(H);
   requires q != null && H[q,alloc] && ValidQueue(H, q);
   modifies H;
@@ -165,7 +165,7 @@ procedure Enqueue(q: ref, t: T)
   H[q,tail] := n;
 }
 
-procedure BulkUpdateFootprint(targetSet: [ref]bool, delta: [ref]bool);
+procedure {:id "BulkUpdateFootprint"} {:checksum "BulkUpdateFootprint"} BulkUpdateFootprint(targetSet: [ref]bool, delta: [ref]bool);
   requires ValidFootprints(H);
   modifies H;
   ensures ValidFootprints(H);
@@ -174,7 +174,7 @@ procedure BulkUpdateFootprint(targetSet: [ref]bool, delta: [ref]bool);
     o != null && old(H)[o,alloc] && targetSet[o]
     ==> H[o,footprint] == UnionSet(old(H)[o,footprint], delta));
 
-procedure BulkUpdateAbstractValue(targetSet: [ref]bool, t: T);
+procedure {:id "BulkUpdateAbstractValue"} {:checksum "BulkUpdateAbstractValue"} BulkUpdateAbstractValue(targetSet: [ref]bool, t: T);
   requires ValidFootprints(H);
   modifies H;
   ensures ValidFootprints(H);
@@ -183,7 +183,7 @@ procedure BulkUpdateAbstractValue(targetSet: [ref]bool, t: T);
     o != null && old(H)[o,alloc] && targetSet[o]
     ==> EqualSeq(H[o,abstractValue], Append(old(H)[o,abstractValue], Singleton(t))));
 
-procedure Front(q: ref) returns (t: T)
+procedure {:id "Front"} {:checksum "Front"} Front(q: ref) returns (t: T)
   requires ValidFootprints(H);
   requires q != null && H[q,alloc] && ValidQueue(H, q);
   requires 0 < Length(H[q,abstractValue]);
@@ -192,7 +192,7 @@ procedure Front(q: ref) returns (t: T)
   t := H[H[H[q,head], next], data];
 }
 
-procedure Dequeue(q: ref)
+procedure {:id "Dequeue"} {:checksum "Dequeue"} Dequeue(q: ref)
   requires ValidFootprints(H);
   requires q != null && H[q,alloc] && ValidQueue(H, q);
   requires 0 < Length(H[q,abstractValue]);
@@ -213,7 +213,7 @@ procedure Dequeue(q: ref)
 
 // --------------------------------------------------------------------------------
 
-procedure MakeNode(t: T) returns (n: ref)
+procedure {:id "MakeNode"} {:checksum "MakeNode"} MakeNode(t: T) returns (n: ref)
   requires ValidFootprints(H);
   modifies H;
   ensures ValidFootprints(H);
@@ -234,7 +234,7 @@ procedure MakeNode(t: T) returns (n: ref)
 
 // --------------------------------------------------------------------------------
 
-procedure Main(t: T, u: T, v: T)
+procedure {:id "Main"} {:checksum "Main"} Main(t: T, u: T, v: T)
   requires ValidFootprints(H);
   modifies H;
   ensures ValidFootprints(H);
@@ -266,7 +266,7 @@ procedure Main(t: T, u: T, v: T)
 
 // --------------------------------------------------------------------------------
 
-procedure Main2(t: T, u: T, v: T, q0: ref, q1: ref)
+procedure {:id "Main2"} {:checksum "Main2"} Main2(t: T, u: T, v: T, q0: ref, q1: ref)
   requires q0 != null && H[q0,alloc] && ValidQueue(H, q0);
   requires q1 != null && H[q1,alloc] && ValidQueue(H, q1);
   requires DisjointSet(H[q0,footprint], H[q1,footprint]);
@@ -301,7 +301,7 @@ procedure Main2(t: T, u: T, v: T, q0: ref, q1: ref)
 
 // Helpful predicates used in specs
 
-function ModifiesOnlySet(oldHeap: HeapType, newHeap: HeapType, set: [ref]bool) returns (bool);
+function {:id "ModifiesOnlySet"} {:checksum "ModifiesOnlySet"} ModifiesOnlySet(oldHeap: HeapType, newHeap: HeapType, set: [ref]bool) returns (bool);
 axiom (forall oldHeap: HeapType, newHeap: HeapType, set: [ref]bool ::
   { ModifiesOnlySet(oldHeap, newHeap, set) }
   ModifiesOnlySet(oldHeap, newHeap, set) <==>
@@ -310,7 +310,7 @@ axiom (forall oldHeap: HeapType, newHeap: HeapType, set: [ref]bool ::
       o != null && oldHeap[o,alloc] ==>
       oldHeap[o,f] == newHeap[o,f] || set[o]));
 
-function ModifiesOnlySetField<alpha>(oldHeap: HeapType, newHeap: HeapType,
+function {:id "ModifiesOnlySetField<alpha>"} {:checksum "ModifiesOnlySetField<alpha>"} ModifiesOnlySetField<alpha>(oldHeap: HeapType, newHeap: HeapType,
                                      set: [ref]bool, field: Field alpha) returns (bool);
 axiom (forall<alpha> oldHeap: HeapType, newHeap: HeapType, set: [ref]bool, field: Field alpha ::
   { ModifiesOnlySetField(oldHeap, newHeap, set, field) }
@@ -320,35 +320,35 @@ axiom (forall<alpha> oldHeap: HeapType, newHeap: HeapType, set: [ref]bool, field
       o != null && oldHeap[o,alloc] ==>
       oldHeap[o,f] == newHeap[o,f] || (set[o] && f == field)));
 
-function NoDeallocs(oldHeap: HeapType, newHeap: HeapType) returns (bool);
+function {:id "NoDeallocs"} {:checksum "NoDeallocs"} NoDeallocs(oldHeap: HeapType, newHeap: HeapType) returns (bool);
 axiom (forall oldHeap: HeapType, newHeap: HeapType ::
   { NoDeallocs(oldHeap, newHeap) }
   NoDeallocs(oldHeap, newHeap) <==>
     (forall o: ref :: { newHeap[o,alloc] }
       o != null && oldHeap[o,alloc] ==> newHeap[o,alloc]));
 
-function AllNewSet(oldHeap: HeapType, set: [ref]bool) returns (bool);
+function {:id "AllNewSet"} {:checksum "AllNewSet"} AllNewSet(oldHeap: HeapType, set: [ref]bool) returns (bool);
 axiom (forall oldHeap: HeapType, set: [ref]bool ::
   { AllNewSet(oldHeap, set) }
   AllNewSet(oldHeap, set) <==>
     (forall o: ref :: { oldHeap[o,alloc] }
       o != null && set[o] ==> !oldHeap[o,alloc]));
 
-function DifferenceIsNew(oldHeap: HeapType, oldSet: [ref]bool, newSet: [ref]bool) returns (bool);
+function {:id "DifferenceIsNew"} {:checksum "DifferenceIsNew"} DifferenceIsNew(oldHeap: HeapType, oldSet: [ref]bool, newSet: [ref]bool) returns (bool);
 axiom (forall oldHeap: HeapType, oldSet: [ref]bool, newSet: [ref]bool ::
   { DifferenceIsNew(oldHeap, oldSet, newSet) }
   DifferenceIsNew(oldHeap, oldSet, newSet) <==>
     (forall o: ref :: { oldHeap[o,alloc] }
       o != null && !oldSet[o] && newSet[o] ==> !oldHeap[o,alloc]));
 
-function ValidFootprints(h: HeapType) returns (bool);
+function {:id "ValidFootprints"} {:checksum "ValidFootprints"} ValidFootprints(h: HeapType) returns (bool);
 axiom (forall h: HeapType ::
   { ValidFootprints(h) }
   ValidFootprints(h) <==>
     (forall o: ref, r: ref :: { h[o,footprint][r] }
       o != null && h[o,alloc] && r != null && h[o,footprint][r] ==> h[r,alloc]));
 
-function Fresh(h: HeapType, o: ref) returns (bool);
+function {:id "Fresh"} {:checksum "Fresh"} Fresh(h: HeapType, o: ref) returns (bool);
 axiom (forall h: HeapType, o: ref ::
   { Fresh(h,o) }
   Fresh(h,o) <==>
@@ -359,23 +359,23 @@ axiom (forall h: HeapType, o: ref ::
 const EmptySet: [ref]bool;
 axiom (forall o: ref :: { EmptySet[o] } !EmptySet[o]);
 
-function SingletonSet(ref) returns ([ref]bool);
+function {:id "SingletonSet"} {:checksum "SingletonSet"} SingletonSet(ref) returns ([ref]bool);
 axiom (forall r: ref :: { SingletonSet(r) } SingletonSet(r)[r]);
 axiom (forall r: ref, o: ref :: { SingletonSet(r)[o] } SingletonSet(r)[o] <==> r == o);
 
-function UnionSet([ref]bool, [ref]bool) returns ([ref]bool);
+function {:id "UnionSet"} {:checksum "UnionSet"} UnionSet([ref]bool, [ref]bool) returns ([ref]bool);
 axiom (forall a: [ref]bool, b: [ref]bool, o: ref :: { UnionSet(a,b)[o] }
   UnionSet(a,b)[o] <==> a[o] || b[o]);
 
-function SubSet([ref]bool, [ref]bool) returns (bool);
+function {:id "SubSet"} {:checksum "SubSet"} SubSet([ref]bool, [ref]bool) returns (bool);
 axiom(forall a: [ref]bool, b: [ref]bool :: { SubSet(a,b) }
   SubSet(a,b) <==> (forall o: ref :: {a[o]} {b[o]} a[o] ==> b[o]));
 
-function EqualSet([ref]bool, [ref]bool) returns (bool);
+function {:id "EqualSet"} {:checksum "EqualSet"} EqualSet([ref]bool, [ref]bool) returns (bool);
 axiom(forall a: [ref]bool, b: [ref]bool :: { EqualSet(a,b) }
   EqualSet(a,b) <==> (forall o: ref :: {a[o]} {b[o]} a[o] <==> b[o]));
 
-function DisjointSet([ref]bool, [ref]bool) returns (bool);
+function {:id "DisjointSet"} {:checksum "DisjointSet"} DisjointSet([ref]bool, [ref]bool) returns (bool);
 axiom (forall a: [ref]bool, b: [ref]bool :: { DisjointSet(a,b) }
   DisjointSet(a,b) <==> (forall o: ref :: {a[o]} {b[o]} !a[o] || !b[o]));
 
@@ -384,34 +384,34 @@ axiom (forall a: [ref]bool, b: [ref]bool :: { DisjointSet(a,b) }
 // Sequence of T
 type Seq;
 
-function Length(Seq) returns (int);
+function {:id "Length"} {:checksum "Length"} Length(Seq) returns (int);
 axiom (forall s: Seq :: { Length(s) } 0 <= Length(s));
 
 const EmptySeq: Seq;
 axiom Length(EmptySeq) == 0;
 axiom (forall s: Seq :: { Length(s) } Length(s) == 0 ==> s == EmptySeq);
 
-function Singleton(T) returns (Seq);
+function {:id "Singleton"} {:checksum "Singleton"} Singleton(T) returns (Seq);
 axiom (forall t: T :: { Length(Singleton(t)) } Length(Singleton(t)) == 1);
 
-function Append(Seq, Seq) returns (Seq);
+function {:id "Append"} {:checksum "Append"} Append(Seq, Seq) returns (Seq);
 axiom (forall s0: Seq, s1: Seq :: { Length(Append(s0,s1)) }
   Length(Append(s0,s1)) == Length(s0) + Length(s1));
 
-function Index(Seq, int) returns (T);
+function {:id "Index"} {:checksum "Index"} Index(Seq, int) returns (T);
 axiom (forall t: T :: { Index(Singleton(t), 0) } Index(Singleton(t), 0) == t);
 axiom (forall s0: Seq, s1: Seq, n: int :: { Index(Append(s0,s1), n) }
   (n < Length(s0) ==> Index(Append(s0,s1), n) == Index(s0, n)) &&
   (Length(s0) <= n ==> Index(Append(s0,s1), n) == Index(s1, n - Length(s0))));
 
-function EqualSeq(Seq, Seq) returns (bool);
+function {:id "EqualSeq"} {:checksum "EqualSeq"} EqualSeq(Seq, Seq) returns (bool);
 axiom (forall s0: Seq, s1: Seq :: { EqualSeq(s0,s1) }
   EqualSeq(s0,s1) <==>
     Length(s0) == Length(s1) &&
     (forall j: int :: { Index(s0,j) } { Index(s1,j) }
         0 <= j && j < Length(s0) ==> Index(s0,j) == Index(s1,j)));
 
-function Take(s: Seq, howMany: int) returns (Seq);
+function {:id "Take"} {:checksum "Take"} Take(s: Seq, howMany: int) returns (Seq);
 axiom (forall s: Seq, n: int :: { Length(Take(s,n)) }
   0 <= n ==>
     (n <= Length(s) ==> Length(Take(s,n)) == n) &&
@@ -420,7 +420,7 @@ axiom (forall s: Seq, n: int, j: int :: { Index(Take(s,n), j) }
   0 <= j && j < n && j < Length(s) ==>
     Index(Take(s,n), j) == Index(s, j));
 
-function Drop(s: Seq, howMany: int) returns (Seq);
+function {:id "Drop"} {:checksum "Drop"} Drop(s: Seq, howMany: int) returns (Seq);
 axiom (forall s: Seq, n: int :: { Length(Drop(s,n)) }
   0 <= n ==>
     (n <= Length(s) ==> Length(Drop(s,n)) == Length(s) - n) &&
